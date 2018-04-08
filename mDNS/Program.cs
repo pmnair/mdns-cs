@@ -47,6 +47,10 @@ namespace mDNS
             dnsPkt.AdditionalRR = mdnsArRR;
 
             dnsPkt.print();
+
+            mDNSPacket dnsPkt1 = new mDNSPacket(dnsPkt.data);
+            dnsPkt1.print();
+
         }
     }
 }

@@ -151,9 +151,14 @@ namespace mDNS
             }
         }
 
+        internal static short HostToNetworkOrder(short host)
+        {
+            return (short)(((host & 0xff) << 8) | ((host >> 8) & 0xff));
+        }
+
         public static Byte[] WriteUInt16(ushort val)
         {
-            return BitConverter.GetBytes(IPAddress.HostToNetworkOrder(val));
+            return BitConverter.GetBytes(HostToNetworkOrder((short)val));
         }
 
         public static ushort ReadUInt16(Byte[] data, int off)
@@ -161,9 +166,14 @@ namespace mDNS
             return (ushort)(data[off] << 8 | data[off+1]);
         }
 
+        internal static int HostToNetworkOrder(int host)
+        {
+            return (int)(((host & 0xff) << 24) | (((host >> 8) & 0xff) << 16)  | (((host >> 16) & 0xff) << 8) | ((host >> 24) & 0xff));
+        }
+
         public static Byte[] WriteUInt32(uint val)
         {
-            return BitConverter.GetBytes(IPAddress.HostToNetworkOrder(val));
+            return BitConverter.GetBytes(HostToNetworkOrder((int)val));
         }
 
         public static uint ReadUInt32(Byte[] data, int off)
