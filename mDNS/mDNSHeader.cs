@@ -160,6 +160,5 @@ namespace mDNS
                 return data.ToArray();
             }
         }
-
     }
 }

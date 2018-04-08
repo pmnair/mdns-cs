@@ -17,7 +17,7 @@ namespace mDNS
 
         public mDNSPacket()
         {
-            rawData = new Byte[4096];
+            rawData = new Byte[1];
             mdnsHdr = new mDNSHeader();
             mdnsQs = new List<mDNSQuestion>();
             mdnsAnRRs = new List<mDNSAnswerRR>();
@@ -73,9 +73,50 @@ namespace mDNS
             Console.WriteLine("===================\n");
         }
 
+        public mDNSHeader Header
+        {
+            set
+            {
+                mdnsHdr = value;
+            }
+        }
+
+        public mDNSQuestion Question
+        {
+            set
+            {
+                mdnsQs.Add(value);
+            }
+        }
+
+        public mDNSAnswerRR AnswerRR
+        {
+            set
+            {
+                mdnsAnRRs.Add(value);
+            }
+        }
+
+        public mDNSAuthorityRR AuthorityRR
+        {
+            set
+            {
+                mdnsNsRRs.Add(value);
+            }
+        }
+
+        public mDNSAdditionalRR AdditionalRR
+        {
+            set
+            {
+                mdnsArRRs.Add(value);
+            }
+        }
+
         public void print()
         {
-            //mdnsHdr.print();
+            Console.WriteLine("== Header ==");
+            mdnsHdr.print();
             Console.WriteLine("== Questions ==");
             for (int i = 0; i < mdnsHdr.qdcount; i++)
                 mdnsQs[i].print();
@@ -89,6 +130,25 @@ namespace mDNS
             for (int i = 0; i < mdnsHdr.ar_rrs; i++)
                 mdnsArRRs[i].print();
             Console.WriteLine("===================\n");
+        }
+
+        public Byte[] data
+        {
+            get
+            {
+                var data = new List<Byte>();
+
+                data.AddRange(mdnsHdr.data);
+                for (int i = 0; i < mdnsHdr.qdcount; i++)
+                    data.AddRange(mdnsQs[i].data);
+                for (int i = 0; i < mdnsHdr.an_rrs; i++)
+                    data.AddRange(mdnsAnRRs[i].data);
+                for (int i = 0; i < mdnsHdr.ns_rrs; i++)
+                    data.AddRange(mdnsNsRRs[i].data);
+                for (int i = 0; i < mdnsHdr.ar_rrs; i++)
+                    data.AddRange(mdnsArRRs[i].data);
+                return data.ToArray();
+            }
         }
 
         public static Byte[] WriteUInt16(ushort val)
@@ -172,6 +232,5 @@ namespace mDNS
                 return ".";
             return Encoding.UTF8.GetString(bytes.ToArray(), 0, bytes.Count);
         }
-
     }
 }
