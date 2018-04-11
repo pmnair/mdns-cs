@@ -191,10 +191,12 @@ namespace mDNS
 
     public enum Class : ushort
     {
-        IN = 1,             // the Internet
-        CS = 2,             // the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
-        CH = 3,             // the CHAOS class
-        HS = 4              // Hesiod [Dyer 87]
+        IN = 0x01,             // the Internet
+        CS = 0x02,             // the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
+        CH = 0x03,             // the CHAOS class
+        HS = 0x04,             // Hesiod [Dyer 87]
+
+        CF = 0x8000
     }
 
     public enum QClass : ushort

@@ -7,16 +7,8 @@ namespace mDNS
 {
     class Program
     {
-        static void Main(string[] args)
+        static void PrintTestPacket()
         {
-            /*
-            mDNSResponder responder = new mDNSResponder();
-
-            responder.start();
-            Thread.Sleep(10000);
-            responder.stop();
-            */
-
             mDNSPacket dnsPkt = new mDNSPacket();
             mDNSHeader mdnsHdr = new mDNSHeader();
             mDNSAnswerRR mdnsAnRR = new mDNSAnswerRR("_services._dns-sd._udp.local.", Type.TXT, Class.IN, 4500, 16);
@@ -47,10 +39,15 @@ namespace mDNS
             dnsPkt.AdditionalRR = mdnsArRR;
 
             dnsPkt.print();
+        }
 
-            mDNSPacket dnsPkt1 = new mDNSPacket(dnsPkt.data);
-            dnsPkt1.print();
+        static void Main(string[] args)
+        {
+            mDNSResponder responder = new mDNSResponder();
 
+            responder.start();
+            Thread.Sleep(10000);
+            responder.stop();
         }
     }
 }

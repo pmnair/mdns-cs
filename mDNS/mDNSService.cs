@@ -15,6 +15,65 @@ namespace mDNS
         private static int mdnsPort = 5353;
         private static string mdnsIP = "224.0.0.251";
 
+        private static void SendQuery(Socket sock, String service)
+        {
+            IPEndPoint remoteEp = new IPEndPoint(IPAddress.Parse(mdnsIP), mdnsPort);
+            mDNSPacket dnsPkt = new mDNSPacket();
+            mDNSHeader mdnsHdr = new mDNSHeader();
+            mDNSQuestion mdnsQ = new mDNSQuestion(service, QType.ANY, QClass.IN);
+
+            mdnsHdr.AA = false;
+            mdnsHdr.TC = false;
+            mdnsHdr.RD = false;
+            mdnsHdr.RA = false;
+            mdnsHdr.RCODE = RespCode.NoError;
+            mdnsHdr.OPCODE = OpCode.QUERY;
+            mdnsHdr.QR = false;
+            mdnsHdr.qdcount = 1;
+            mdnsHdr.an_rrs = 0;
+            mdnsHdr.ns_rrs = 0;
+            mdnsHdr.ar_rrs = 0;
+
+            dnsPkt.Header = mdnsHdr;
+            dnsPkt.Question = mdnsQ;
+
+            dnsPkt.print();
+
+            Console.WriteLine("Sending Query: " + service);
+            sock.SendTo(dnsPkt.data, remoteEp);
+        }
+
+        private static void AnnounceService(Socket sock, String service)
+        {
+            IPEndPoint remoteEp = new IPEndPoint(IPAddress.Parse(mdnsIP), mdnsPort);
+            mDNSPacket dnsPkt = new mDNSPacket();
+            mDNSHeader mdnsHdr = new mDNSHeader();
+            mDNSAnswerRR mdnsAnRR = new mDNSAnswerRR(service, Type.AAAA, (Class.IN | Class.CF), 4500, 16);
+            Byte[] rdata = new Byte[16];
+
+            mdnsAnRR.RDATA = rdata;
+
+            mdnsHdr.AA = true;
+            mdnsHdr.TC = false;
+            mdnsHdr.RD = false;
+            mdnsHdr.RA = false;
+            mdnsHdr.RCODE = RespCode.NoError;
+            mdnsHdr.OPCODE = OpCode.QUERY;
+            mdnsHdr.QR = true;
+            mdnsHdr.qdcount = 0;
+            mdnsHdr.an_rrs = 1;
+            mdnsHdr.ns_rrs = 0;
+            mdnsHdr.ar_rrs = 0;
+
+            dnsPkt.Header = mdnsHdr;
+            dnsPkt.AnswerRR = mdnsAnRR;
+
+            dnsPkt.print();
+
+            Console.WriteLine("Announcing Service: " + service);
+            sock.SendTo(dnsPkt.data, remoteEp);
+        }
+
         private static void mdnsListener()
         {
             IPEndPoint localEp = new IPEndPoint(IPAddress.Any, mdnsPort);
@@ -27,6 +86,10 @@ namespace mDNS
             sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             sock.Bind(localEp);
             sock.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, mcastGrp);
+
+            //SendQuery(sock, "_services._iscsi-live._udp.local.");
+            AnnounceService(sock, "iscsi-live._192_168_2_84._tcp.local.");
+
             Console.WriteLine("Listener Started");
             while (serviceUp)
             {
